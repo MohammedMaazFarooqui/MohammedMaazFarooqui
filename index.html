@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Maaz | 1st Round Interview Challenge</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+
+</head>
+<body>
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1>Maaz Farooqui</h1>
+        <p>1st Round Interview Challenge</p>
+      </div>
+    </div>
+
+    <div class="container">
+
+        <form onsubmit="validateAndSave(event);" class="needs-validation" novalidate>
+            <div class="form-group">
+                <label for="eid">Employee Id:</label>
+                <input type="text" class="form-control" id="eid" placeholder="Enter Employee ID" value="100" name="eid" required>
+            </div>
+            <div class="form-group">
+                <label for="ename">Employee Name:</label>
+                <input type="text" class="form-control" id="ename" placeholder="Enter Employee Name" value="John Doe" name="ename" required>
+            </div>
+            <div class="form-group">
+              <label for="gender">Gender:</label>
+              <select class="form-control" id="gender">
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+            <div class="form-group">
+                <label for="bday">Birthday:</label>
+                <input type="date" class="form-control" id="bday" name="bday" value="03/08/2022" required>
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile Number:</label>
+                <input type="tel" class="form-control" id="mobile" value="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" name="mobile" required>
+            </div>
+            <div class="form-group">
+              <label for="dept">Department:</label>
+              <select class="form-control" id="dept">
+                <option>IT</option>
+                <option>HR</option>
+                <option>Management</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+
+        <div class="pt-2 pb-2" style="margin-top: 10pt;">
+            <h2>Employee Data</h2>
+
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Search Employee</span>
+              </div>
+              <input type="text" class="form-control" id="search" onkeyup="search(event);">
+            </div>
+
+        </div>
+        <table class="table table-dark table-hover">
+          <thead>
+            <tr>
+              <th>Employee Id</th>
+              <th>Employee Name</th>
+              <th>Gender</th>
+              <th>Birthday</th>
+              <th>Mobile Number</th>
+              <th>Department</th>
+            </tr>
+          </thead>
+          <tbody id="empdata">
+            <tr>
+                <td colspan="6" class="text-center">
+                    <span>No data found.</span>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+    <div class="container pt-2 pb-2"></div>
+
+    <script type="text/javascript">
+        window.onload = function() {
+            // Set today's date.
+            document.getElementById('bday').valueAsDate = new Date();
+        }
+
+        // Setup the data and data strings array.
+        var data = [];
+        var data_strings = [];
+
+        // Returns the dictionary/HashMap as table row.
+        function getHtml(d) {
+
+            var html = "<tr> \
+              <td>" + d.eid + "</td> \
+              <td>" + d.ename + "</td> \
+              <td>" + d.gender + "</td> \
+              <td>" + d.bday + "</td> \
+              <td>" + d.mobile + "</td> \
+              <td>" + d.dept + "</td> \
+            </tr>";
+
+            return html;
+        }
+
+        // Validates the fields and saves in the data and data strings array
+        // defined above.
+        function validateAndSave(e) {
+
+            // Prevent the default behavior of the form submission.
+            e.preventDefault();
+
+            // Get all the field values.
+            var eid = document.querySelector('#eid').value;
+            var ename = document.querySelector('#ename').value;
+            var gender = document.querySelector('#gender').value;
+            var bday = document.querySelector('#bday').value;
+            var mobile = document.querySelector('#mobile').value;
+            var dept = document.querySelector('#dept').value;
+
+            // If any of the fields are empty then throw an alert.
+            if(eid == '' || ename == '' || gender == '' || bday == '' || mobile == '' || dept == '') {
+                alert('Please check all the fields.');
+                return;
+            }
+
+            // Check for the mobile number.
+            if(mobile.length != 10) {
+                if(mobile.replace(/\D/g, '').length != 10) {
+                    alert('Please enter valid mobile number');
+                    return;
+                }
+            }
+
+            // Format the mobile field.
+            mobile = mobile.replace(/\D/g, '');
+            mobile = mobile.substring(0, 3) + '-' + mobile.substring(3, 6) + '-' + mobile.substring(6, mobile.length);
+
+            // Format the birthday field.
+            var bday_split = bday.split('-');
+            bday = bday_split[1] + '-' + bday_split[2] + '-' + bday_split[0];
+
+            // Initialize the employee dictionary.
+            var value = {
+                "eid": eid,
+                "ename": ename,
+                "gender": gender,
+                "bday": bday,
+                "mobile": mobile,
+                "dept": dept
+            };
+
+            // Initialize the employee data string to perform searching.
+            var data_string = eid + ' ' + ename + ' ' + gender + ' ' + bday + ' ' + mobile + ' ' + dept;
+            data_string = data_string.toLowerCase();
+
+            // Add the dictionary and string to the arrays.
+            data.push(value);
+            data_strings.push(data_string);
+
+            // Show the results.
+            showData(data);
+        }
+
+        // Searchs in the employee data strings dictionary.
+        function search(e) {
+
+            // Initialize the final data array and search query.
+            var results = [];
+            var query = document.querySelector('#search').value;
+
+            // Process the search query.
+            query = query.trim().toLowerCase();
+
+            // Find all the data that matches the search field.
+            for(var i = 0; i < data_strings.length; i++) {
+                if(data_strings[i].includes(query)) {
+                    results.push(data[i]);
+                }
+            }
+
+            // Show the results.
+            showData(results);
+        }
+
+        function showData(d) {
+
+            // Get the employee element for output.
+            var empdata = document.querySelector('#empdata');
+
+            // Clear the output.
+            empdata.innerHTML = '';
+
+            for(var i = 0; i < d.length; i++) {
+
+                // Append the row.
+                empdata.innerHTML += getHtml(d[i]);
+            }
+
+        }
+    </script>
+</body>
+</html>
