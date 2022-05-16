@@ -3,4 +3,5 @@ this is maaz farooqui
 Devops
 
 aws
+azure
 Hi
